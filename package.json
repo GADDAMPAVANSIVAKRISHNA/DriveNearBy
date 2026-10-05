@@ -1,0 +1,25 @@
+{
+  "name": "drivenearby-ai",
+  "version": "1.0.0",
+  "description": "DriveNearby AI - Intelligent Mobility Platform with AI Rating & Trust System",
+  "scripts": {
+    "start": "npm start --prefix mobile",
+    "mobile": "npm start --prefix mobile",
+    "android": "npm run android --prefix mobile",
+    "ios": "npm run ios --prefix mobile",
+    "web": "npm run web --prefix mobile",
+    "server": "npm start --prefix backend",
+    "server:dev": "npm run dev --prefix backend"
+  },
+  "keywords": [
+    "react-native",
+    "expo",
+    "mobility",
+    "ai-recommendations",
+    "trust-score",
+    "express",
+    "mongodb"
+  ],
+  "author": "DriveNearby AI Team",
+  "license": "MIT"
+}
