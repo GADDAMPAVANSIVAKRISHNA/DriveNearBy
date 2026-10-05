@@ -6,20 +6,23 @@ import { AuthProvider } from './src/context/AuthContext';
 import { LocationProvider } from './src/context/LocationContext';
 import { BookingProvider } from './src/context/BookingContext';
 import AppNavigator from './src/navigation/AppNavigator';
+import ResponsiveContainer from './src/components/ResponsiveContainer';
 
 export default function App() {
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <LocationProvider>
-          <BookingProvider>
-            <NavigationContainer>
-              <StatusBar style="light" />
-              <AppNavigator />
-            </NavigationContainer>
-          </BookingProvider>
-        </LocationProvider>
-      </AuthProvider>
+      <ResponsiveContainer>
+        <AuthProvider>
+          <LocationProvider>
+            <BookingProvider>
+              <NavigationContainer>
+                <StatusBar style="light" />
+                <AppNavigator />
+              </NavigationContainer>
+            </BookingProvider>
+          </LocationProvider>
+        </AuthProvider>
+      </ResponsiveContainer>
     </SafeAreaProvider>
   );
 }
