@@ -15,10 +15,12 @@ import CarCard from '../../components/CarCard';
 import ComboCard from '../../components/ComboCard';
 import SearchBar from '../../components/SearchBar';
 import { useBookings } from '../../context/BookingContext';
+import { useResponsive } from '../../hooks/useResponsive';
 import { triggerHaptic } from '../../utils/haptics';
 
 export const ExploreScreen = ({ navigation }) => {
   const { drivers, cars, combos } = useBookings();
+  const { isMobile, isTablet, isDesktop, gridColumns, maxContentWidth, gutter } = useResponsive();
   const [activeTab, setActiveTab] = useState('drivers');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -33,107 +35,125 @@ export const ExploreScreen = ({ navigation }) => {
       <AnimatedSpatialBackground />
 
       <SafeAreaView style={styles.safeArea}>
-        {/* Top Header */}
-        <View style={styles.header}>
-          <View style={styles.headerRow}>
-            <View>
-              <Text style={styles.headerTitle}>MOBILITY FLEET</Text>
-              <Text style={styles.headerSubtitle}>GLOBAL DISPATCH MATRIX • BENGALURU SECTOR</Text>
+        {/* Responsive Centered Content Container */}
+        <View style={[styles.responsiveShell, { maxWidth: maxContentWidth, paddingHorizontal: isMobile ? 12 : gutter }]}>
+          {/* Top Header */}
+          <View style={styles.header}>
+            <View style={styles.headerRow}>
+              <View>
+                <Text style={styles.headerTitle}>MOBILITY FLEET</Text>
+                <Text style={styles.headerSubtitle}>GLOBAL DISPATCH MATRIX • BENGALURU SECTOR</Text>
+              </View>
+              <View style={styles.activePill}>
+                <View style={styles.pulseDot} />
+                <Text style={styles.activePillText}>ONLINE</Text>
+              </View>
             </View>
-            <View style={styles.activePill}>
-              <View style={styles.pulseDot} />
-              <Text style={styles.activePillText}>ONLINE</Text>
-            </View>
+
+            {/* Search Field */}
+            <SearchBar
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholder={`Search ${activeTab} by name or location...`}
+              style={{ marginBottom: 0, marginTop: 4 }}
+            />
           </View>
 
-          {/* Search Field */}
-          <SearchBar
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder={`Search ${activeTab} by name or location...`}
-            style={{ marginBottom: 0, marginTop: 4 }}
-          />
-        </View>
+          {/* Segmented Switcher */}
+          <View style={styles.tabsRow}>
+            {tabs.map((tab) => {
+              const isSelected = activeTab === tab.key;
+              return (
+                <TouchableOpacity
+                  key={tab.key}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    triggerHaptic('impactLight');
+                    setActiveTab(tab.key);
+                  }}
+                  style={[styles.tabBtn, isSelected && styles.tabBtnActive]}
+                >
+                  <Text style={[styles.tabBtnText, isSelected && styles.tabBtnTextActive]}>
+                    {tab.label} ({tab.count})
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
 
-        {/* Segmented Switcher */}
-        <View style={styles.tabsRow}>
-          {tabs.map((tab) => {
-            const isSelected = activeTab === tab.key;
-            return (
-              <TouchableOpacity
-                key={tab.key}
-                activeOpacity={0.8}
-                onPress={() => {
-                  triggerHaptic('impactLight');
-                  setActiveTab(tab.key);
-                }}
-                style={[styles.tabBtn, isSelected && styles.tabBtnActive]}
-              >
-                <Text style={[styles.tabBtnText, isSelected && styles.tabBtnTextActive]}>
-                  {tab.label} ({tab.count})
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+          {/* Tab Content List with Responsive Auto-Grid */}
+          <View style={styles.contentWrap}>
+            {activeTab === 'drivers' && (
+              <FlatList
+                key={`grid-drivers-${gridColumns}`}
+                data={drivers.filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()))}
+                keyExtractor={(item) => item.id}
+                numColumns={gridColumns}
+                columnWrapperStyle={gridColumns > 1 ? styles.gridRow : null}
+                contentContainerStyle={[styles.listPadding, { paddingBottom: isMobile ? 80 : 96 }]}
+                showsVerticalScrollIndicator={false}
+                renderItem={({ item }) => (
+                  <View style={gridColumns > 1 ? styles.gridColItem : styles.singleColItem}>
+                    <DriverCard
+                      driver={item}
+                      onViewDetails={(drv) => navigation.navigate('DriverDetails', { driver: drv })}
+                      onBook={(drv) => navigation.navigate('Booking', { serviceType: 'driver', driver: drv })}
+                    />
+                  </View>
+                )}
+              />
+            )}
 
-        {/* Tab Content List */}
-        <View style={styles.contentWrap}>
-          {activeTab === 'drivers' && (
-            <FlatList
-              data={drivers.filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()))}
-              keyExtractor={(item) => item.id}
-              contentContainerStyle={styles.listPadding}
-              showsVerticalScrollIndicator={false}
-              renderItem={({ item }) => (
-                <DriverCard
-                  driver={item}
-                  onViewDetails={(drv) => navigation.navigate('DriverDetails', { driver: drv })}
-                  onBook={(drv) => navigation.navigate('Booking', { serviceType: 'driver', driver: drv })}
-                />
-              )}
-            />
-          )}
+            {activeTab === 'cars' && (
+              <FlatList
+                key={`grid-cars-${gridColumns}`}
+                data={cars.filter((c) => c.name.toLowerCase().includes(searchQuery.toLowerCase()))}
+                keyExtractor={(item) => item.id}
+                numColumns={gridColumns}
+                columnWrapperStyle={gridColumns > 1 ? styles.gridRow : null}
+                contentContainerStyle={[styles.listPadding, { paddingBottom: isMobile ? 80 : 96 }]}
+                showsVerticalScrollIndicator={false}
+                renderItem={({ item }) => (
+                  <View style={gridColumns > 1 ? styles.gridColItem : styles.singleColItem}>
+                    <CarCard
+                      car={item}
+                      onViewDetails={(c) => navigation.navigate('CarDetails', { car: c })}
+                      onRent={(c) => navigation.navigate('Booking', { serviceType: 'car', car: c })}
+                    />
+                  </View>
+                )}
+              />
+            )}
 
-          {activeTab === 'cars' && (
-            <FlatList
-              data={cars.filter((c) => c.name.toLowerCase().includes(searchQuery.toLowerCase()))}
-              keyExtractor={(item) => item.id}
-              contentContainerStyle={styles.listPadding}
-              showsVerticalScrollIndicator={false}
-              renderItem={({ item }) => (
-                <CarCard
-                  car={item}
-                  onViewDetails={(c) => navigation.navigate('CarDetails', { car: c })}
-                  onRent={(c) => navigation.navigate('Booking', { serviceType: 'car', car: c })}
-                />
-              )}
-            />
-          )}
-
-          {activeTab === 'combos' && (
-            <FlatList
-              data={combos.filter((cmb) =>
-                cmb.driver?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                cmb.car?.name?.toLowerCase().includes(searchQuery.toLowerCase())
-              )}
-              keyExtractor={(item) => item.id}
-              contentContainerStyle={styles.listPadding}
-              showsVerticalScrollIndicator={false}
-              renderItem={({ item }) => (
-                <ComboCard
-                  combo={item}
-                  onBook={(cmb) =>
-                    navigation.navigate('Booking', {
-                      serviceType: 'combo',
-                      driver: cmb.driver,
-                      car: cmb.car,
-                    })
-                  }
-                />
-              )}
-            />
-          )}
+            {activeTab === 'combos' && (
+              <FlatList
+                key={`grid-combos-${gridColumns}`}
+                data={combos.filter((cmb) =>
+                  cmb.driver?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  cmb.car?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+                )}
+                keyExtractor={(item) => item.id}
+                numColumns={gridColumns}
+                columnWrapperStyle={gridColumns > 1 ? styles.gridRow : null}
+                contentContainerStyle={[styles.listPadding, { paddingBottom: isMobile ? 80 : 96 }]}
+                showsVerticalScrollIndicator={false}
+                renderItem={({ item }) => (
+                  <View style={gridColumns > 1 ? styles.gridColItem : styles.singleColItem}>
+                    <ComboCard
+                      combo={item}
+                      onBook={(cmb) =>
+                        navigation.navigate('Booking', {
+                          serviceType: 'combo',
+                          driver: cmb.driver,
+                          car: cmb.car,
+                        })
+                      }
+                    />
+                  </View>
+                )}
+              />
+            )}
+          </View>
         </View>
       </SafeAreaView>
     </View>
@@ -148,8 +168,12 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
+  responsiveShell: {
+    flex: 1,
+    width: '100%',
+    alignSelf: 'center',
+  },
   header: {
-    paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 10,
     borderBottomWidth: 1,
@@ -199,14 +223,13 @@ const styles = StyleSheet.create({
   },
   tabsRow: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
     paddingVertical: 12,
     gap: 8,
   },
   tabBtn: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 9,
+    paddingVertical: 10,
     borderRadius: SIZES.radiusMd,
     backgroundColor: 'rgba(255, 255, 255, 0.04)',
     borderWidth: 1,
@@ -233,8 +256,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listPadding: {
-    padding: 16,
-    paddingBottom: 32,
+    paddingVertical: 14,
+  },
+  gridRow: {
+    gap: 16,
+    justifyContent: 'flex-start',
+  },
+  gridColItem: {
+    flex: 1,
+    minWidth: 260,
+  },
+  singleColItem: {
+    width: '100%',
   },
 });
 

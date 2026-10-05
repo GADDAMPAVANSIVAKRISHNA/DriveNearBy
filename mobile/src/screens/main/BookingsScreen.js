@@ -13,13 +13,16 @@ import AnimatedSpatialBackground from '../../components/AnimatedSpatialBackgroun
 import BookingCard from '../../components/BookingCard';
 import { EmptyState } from '../../components/LoadingState';
 import { useBookings } from '../../context/BookingContext';
+import { useResponsive } from '../../hooks/useResponsive';
 import { triggerHaptic } from '../../utils/haptics';
 
 export const BookingsScreen = ({ navigation }) => {
   const { bookings } = useBookings();
+  const { isMobile, isTablet, isDesktop, maxContentWidth, gutter } = useResponsive();
   const [filterTab, setFilterTab] = useState('All');
 
   const tabs = ['All', 'Active', 'Completed', 'Cancelled'];
+  const columns = isDesktop || isTablet ? 2 : 1;
 
   const filteredBookings = bookings.filter((b) => {
     if (filterTab === 'All') return true;
@@ -40,70 +43,76 @@ export const BookingsScreen = ({ navigation }) => {
       <AnimatedSpatialBackground />
 
       <SafeAreaView style={styles.safeArea}>
-        {/* Top Telemetry Header */}
-        <View style={styles.header}>
-          <View style={styles.headerRow}>
-            <View>
-              <Text style={styles.headerTitle}>MISSION LOGS</Text>
-              <Text style={styles.headerSubtitle}>MOBILITY JOURNEY TELEMETRY & BOOKINGS</Text>
+        {/* Responsive Centered Shell */}
+        <View style={[styles.responsiveShell, { maxWidth: maxContentWidth, paddingHorizontal: isMobile ? 12 : gutter }]}>
+          {/* Top Telemetry Header */}
+          <View style={styles.header}>
+            <View style={styles.headerRow}>
+              <View>
+                <Text style={styles.headerTitle}>MISSION LOGS</Text>
+                <Text style={styles.headerSubtitle}>MOBILITY JOURNEY TELEMETRY & BOOKINGS</Text>
+              </View>
+              <View style={styles.counterBadge}>
+                <Text style={styles.counterText}>{filteredBookings.length} MISSIONS</Text>
+              </View>
             </View>
-            <View style={styles.counterBadge}>
-              <Text style={styles.counterText}>{filteredBookings.length} MISSIONS</Text>
+
+            {/* Futuristic Segmented Tabs */}
+            <View style={styles.tabBar}>
+              {tabs.map((tab) => {
+                const isSelected = filterTab === tab;
+                return (
+                  <TouchableOpacity
+                    key={tab}
+                    onPress={() => {
+                      triggerHaptic('impactLight');
+                      setFilterTab(tab);
+                    }}
+                    style={[styles.tabItem, isSelected && styles.tabItemActive]}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={[styles.tabText, isSelected && styles.tabTextActive]}>
+                      {tab.toUpperCase()}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </View>
 
-          {/* Futuristic Segmented Tabs */}
-          <View style={styles.tabBar}>
-            {tabs.map((tab) => {
-              const isSelected = filterTab === tab;
-              return (
-                <TouchableOpacity
-                  key={tab}
+          <FlatList
+            key={`bookings-grid-${columns}`}
+            data={filteredBookings}
+            keyExtractor={(item) => item.id || item.bookingId}
+            numColumns={columns}
+            columnWrapperStyle={columns > 1 ? styles.gridRow : null}
+            contentContainerStyle={[styles.listContent, { paddingBottom: isMobile ? 80 : 96 }]}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <View style={columns > 1 ? styles.gridColItem : styles.singleColItem}>
+                <BookingCard
+                  booking={item}
                   onPress={() => {
-                    triggerHaptic('impactLight');
-                    setFilterTab(tab);
+                    if (['confirmed', 'driver_arriving', 'driver_arrived', 'trip_started', 'in_progress'].includes(item.status)) {
+                      navigation.navigate('ActiveTrip', { booking: item });
+                    } else {
+                      navigation.navigate('TripCompleted', { booking: item });
+                    }
                   }}
-                  style={[styles.tabItem, isSelected && styles.tabItemActive]}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[styles.tabText, isSelected && styles.tabTextActive]}>
-                    {tab.toUpperCase()}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+                  onTrackPress={() => navigation.navigate('ActiveTrip', { booking: item })}
+                  onRatePress={() => navigation.navigate('RatingReview', { booking: item })}
+                />
+              </View>
+            )}
+            ListEmptyComponent={
+              <EmptyState
+                icon="calendar-outline"
+                title="No Missions in this Stream"
+                subtitle="Explore available chauffeurs or vehicles in the Hub to initiate a dispatch."
+              />
+            }
+          />
         </View>
-
-        <FlatList
-          data={filteredBookings}
-          keyExtractor={(item) => item.id || item.bookingId}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <BookingCard
-              booking={item}
-              onPress={() => {
-                if (['confirmed', 'driver_arriving', 'driver_arrived', 'trip_started', 'in_progress'].includes(item.status)) {
-                  navigation.navigate('ActiveTrip', { booking: item });
-                } else {
-                  navigation.navigate('TripCompleted', { booking: item });
-                }
-              }}
-              onTrackPress={() => navigation.navigate('ActiveTrip', { booking: item })}
-              onRatePress={() => navigation.navigate('RatingReview', { booking: item })}
-            />
-          )}
-          ListEmptyComponent={
-            <EmptyState
-              icon="calendar-outline"
-              title="No Missions in this Stream"
-              subtitle="Deploy a nearby chauffeur pilot or reserve a rental unit from the Orbit HUD."
-              buttonTitle="Explore Mobility Fleet"
-              onButtonPress={() => navigation.navigate('HomeTab')}
-            />
-          }
-        />
       </SafeAreaView>
     </View>
   );
@@ -117,8 +126,12 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
+  responsiveShell: {
+    flex: 1,
+    width: '100%',
+    alignSelf: 'center',
+  },
   header: {
-    paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
@@ -128,7 +141,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 14,
+    marginBottom: 12,
   },
   headerTitle: {
     fontSize: 20,
@@ -144,37 +157,38 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   counterBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-    backgroundColor: 'rgba(0, 242, 254, 0.12)',
+    backgroundColor: 'rgba(0, 242, 254, 0.1)',
     borderWidth: 1,
     borderColor: 'rgba(0, 242, 254, 0.3)',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
   counterText: {
     fontSize: 9,
     fontWeight: '900',
     color: COLORS.cyan,
-    letterSpacing: 1,
+    letterSpacing: 0.8,
   },
   tabBar: {
     flexDirection: 'row',
-    gap: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: SIZES.radiusMd,
+    padding: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   tabItem: {
-    paddingVertical: 7,
-    paddingHorizontal: 14,
-    borderRadius: SIZES.radiusMd,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderRadius: SIZES.radiusSm,
   },
   tabItemActive: {
     backgroundColor: COLORS.cyan,
-    borderColor: COLORS.cyan,
     shadowColor: COLORS.cyan,
-    shadowOpacity: 0.7,
-    shadowRadius: 8,
+    shadowOpacity: 0.6,
+    shadowRadius: 6,
   },
   tabText: {
     fontSize: 10,
@@ -187,8 +201,19 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   listContent: {
-    padding: 16,
-    paddingBottom: 32,
+    paddingVertical: 14,
+    gap: 12,
+  },
+  gridRow: {
+    gap: 14,
+    justifyContent: 'flex-start',
+  },
+  gridColItem: {
+    flex: 1,
+    minWidth: 300,
+  },
+  singleColItem: {
+    width: '100%',
   },
 });
 

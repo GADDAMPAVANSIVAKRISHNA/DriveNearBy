@@ -18,12 +18,14 @@ import { EmptyState } from '../../components/LoadingState';
 import { useBookings } from '../../context/BookingContext';
 import { useLocation } from '../../context/LocationContext';
 import { useNearbyMobility } from '../../hooks/useNearbyMobility';
+import { useResponsive } from '../../hooks/useResponsive';
 import { triggerHaptic } from '../../utils/haptics';
 
 export const NearbyDriversScreen = ({ navigation }) => {
   const { drivers } = useBookings();
   const { location } = useLocation();
   const { allUnits, isScanning } = useNearbyMobility(location);
+  const { isMobile, isTablet, isDesktop, gridColumns, maxContentWidth, gutter } = useResponsive();
 
   const [viewMode, setViewMode] = useState('both');
   const [searchQuery, setSearchQuery] = useState('');
@@ -109,8 +111,9 @@ export const NearbyDriversScreen = ({ navigation }) => {
   return (
     <AnimatedSpatialBackground>
       <SafeAreaView style={styles.container}>
-        {/* HUD Top Bar */}
-        <View style={styles.header}>
+        <View style={[styles.responsiveShell, { maxWidth: maxContentWidth, paddingHorizontal: isMobile ? 12 : gutter }]}>
+          {/* HUD Top Bar */}
+          <View style={styles.header}>
           <TouchableOpacity
             onPress={() => {
               triggerHaptic('light');
@@ -184,9 +187,12 @@ export const NearbyDriversScreen = ({ navigation }) => {
         {/* Driver List */}
         {viewMode !== 'map' && (
           <FlatList
+            key={`drivers-grid-${gridColumns}`}
             data={filteredDrivers}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.listContent}
+            numColumns={gridColumns}
+            columnWrapperStyle={gridColumns > 1 ? { gap: 16 } : null}
+            contentContainerStyle={[styles.listContent, { paddingBottom: isMobile ? 80 : 100 }]}
             showsVerticalScrollIndicator={false}
             ListHeaderComponent={
               <View style={styles.listMetaRow}>
@@ -199,11 +205,13 @@ export const NearbyDriversScreen = ({ navigation }) => {
               </View>
             }
             renderItem={({ item }) => (
-              <DriverCard
-                driver={item}
-                onViewDetails={(drv) => navigation.navigate('DriverDetails', { driver: drv })}
-                onBook={(drv) => navigation.navigate('Booking', { serviceType: 'driver', driver: drv })}
-              />
+              <View style={gridColumns > 1 ? { flex: 1, minWidth: 280 } : { width: '100%' }}>
+                <DriverCard
+                  driver={item}
+                  onViewDetails={(drv) => navigation.navigate('DriverDetails', { driver: drv })}
+                  onBook={(drv) => navigation.navigate('Booking', { serviceType: 'driver', driver: drv })}
+                />
+              </View>
             )}
             ListEmptyComponent={
               <EmptyState
@@ -218,6 +226,7 @@ export const NearbyDriversScreen = ({ navigation }) => {
             }
           />
         )}
+        </View>
 
         <FilterModal
           visible={filterModalVisible}
@@ -234,6 +243,11 @@ export const NearbyDriversScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  responsiveShell: {
+    flex: 1,
+    width: '100%',
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',

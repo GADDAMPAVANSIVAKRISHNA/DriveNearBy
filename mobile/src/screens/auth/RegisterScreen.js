@@ -155,6 +155,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
     paddingVertical: 36,
+    maxWidth: 480,
+    width: '100%',
+    alignSelf: 'center',
   },
   headerWrap: {
     marginBottom: 16,

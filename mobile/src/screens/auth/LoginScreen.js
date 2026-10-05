@@ -149,6 +149,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
     paddingVertical: 40,
+    maxWidth: 480,
+    width: '100%',
+    alignSelf: 'center',
   },
   headerWrap: {
     alignItems: 'center',

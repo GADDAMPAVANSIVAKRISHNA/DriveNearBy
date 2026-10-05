@@ -17,11 +17,13 @@ import FilterModal from '../../components/FilterModal';
 import { EmptyState } from '../../components/LoadingState';
 import { useBookings } from '../../context/BookingContext';
 import { useLocation } from '../../context/LocationContext';
+import { useResponsive } from '../../hooks/useResponsive';
 import { triggerHaptic } from '../../utils/haptics';
 
 export const NearbyCarsScreen = ({ navigation }) => {
   const { cars } = useBookings();
   const { location } = useLocation();
+  const { isMobile, isTablet, isDesktop, gridColumns, maxContentWidth, gutter } = useResponsive();
 
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -74,8 +76,9 @@ export const NearbyCarsScreen = ({ navigation }) => {
   return (
     <AnimatedSpatialBackground>
       <SafeAreaView style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.responsiveShell, { maxWidth: maxContentWidth, paddingHorizontal: isMobile ? 12 : gutter }]}>
+          {/* Header */}
+          <View style={styles.header}>
           <TouchableOpacity
             onPress={() => {
               triggerHaptic('light');
@@ -140,9 +143,12 @@ export const NearbyCarsScreen = ({ navigation }) => {
 
         {/* Cars List */}
         <FlatList
+          key={`cars-grid-${gridColumns}`}
           data={filteredCars}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
+          numColumns={gridColumns}
+          columnWrapperStyle={gridColumns > 1 ? { gap: 16 } : null}
+          contentContainerStyle={[styles.listContent, { paddingBottom: isMobile ? 80 : 100 }]}
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             <View style={styles.metaRow}>
@@ -155,11 +161,13 @@ export const NearbyCarsScreen = ({ navigation }) => {
             </View>
           }
           renderItem={({ item }) => (
-            <CarCard
-              car={item}
-              onViewDetails={(c) => navigation.navigate('CarDetails', { car: c })}
-              onRent={(c) => navigation.navigate('Booking', { serviceType: 'car', car: c })}
-            />
+            <View style={gridColumns > 1 ? { flex: 1, minWidth: 280 } : { width: '100%' }}>
+              <CarCard
+                car={item}
+                onViewDetails={(c) => navigation.navigate('CarDetails', { car: c })}
+                onRent={(c) => navigation.navigate('Booking', { serviceType: 'car', car: c })}
+              />
+            </View>
           )}
           ListEmptyComponent={
             <EmptyState
@@ -174,6 +182,7 @@ export const NearbyCarsScreen = ({ navigation }) => {
             />
           }
         />
+        </View>
 
         <FilterModal
           visible={filterModalVisible}
@@ -190,6 +199,11 @@ export const NearbyCarsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  responsiveShell: {
+    flex: 1,
+    width: '100%',
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',

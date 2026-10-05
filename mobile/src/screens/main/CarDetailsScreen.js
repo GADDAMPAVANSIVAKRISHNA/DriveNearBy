@@ -195,6 +195,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    maxWidth: 800,
+    width: '100%',
+    alignSelf: 'center',
   },
   backBtn: {
     width: 36,
@@ -224,6 +227,9 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 110,
+    maxWidth: 800,
+    width: '100%',
+    alignSelf: 'center',
   },
   heroWrap: {
     width: '100%',
@@ -384,6 +390,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+    maxWidth: 800,
+    marginHorizontal: 'auto',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

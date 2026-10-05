@@ -321,6 +321,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    maxWidth: 720,
+    width: '100%',
+    alignSelf: 'center',
   },
   backBtn: {
     width: 36,
@@ -341,6 +344,9 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 20,
     paddingBottom: 110,
+    maxWidth: 720,
+    width: '100%',
+    alignSelf: 'center',
   },
   stepIndicatorCard: {
     borderRadius: SIZES.radiusLg,
@@ -604,6 +610,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+    maxWidth: 720,
+    marginHorizontal: 'auto',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

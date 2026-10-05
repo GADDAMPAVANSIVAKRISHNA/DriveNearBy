@@ -23,9 +23,11 @@ import TrustDeltaCelebrationModal from '../../components/TrustDeltaCelebrationMo
 import { useBookings } from '../../context/BookingContext';
 import { useLocation } from '../../context/LocationContext';
 import { useNearbyMobility } from '../../hooks/useNearbyMobility';
+import { useResponsive } from '../../hooks/useResponsive';
 import { triggerHaptic } from '../../utils/haptics';
 
 export const HomeScreen = ({ navigation }) => {
+  const { isMobile, isTablet, isDesktop, maxContentWidth, gutter } = useResponsive();
   const {
     drivers,
     cars,
@@ -164,7 +166,7 @@ export const HomeScreen = ({ navigation }) => {
 
         {/* Floating Top Controls with Back to Hub Button */}
         <SafeAreaView style={styles.topSafeArea}>
-          <View style={styles.topOverlay}>
+          <View style={[styles.topOverlay, { maxWidth: isMobile ? '100%' : 720, alignSelf: 'center', width: '100%' }]}>
             <View style={styles.locationPillRow}>
               {/* Back to Hub Dashboard Button */}
               <TouchableOpacity
@@ -294,7 +296,7 @@ export const HomeScreen = ({ navigation }) => {
 
         {/* Compact AI Recommendation Card on Map */}
         {!selectedUnit && topAIRecommended && (
-          <View style={styles.bottomCardWrap}>
+          <View style={[styles.bottomCardWrap, { maxWidth: isMobile ? '100%' : 680, alignSelf: 'center', width: '100%' }]}>
             <TouchableOpacity
               style={styles.aiCompactCard}
               onPress={() => {
@@ -361,7 +363,16 @@ export const HomeScreen = ({ navigation }) => {
 
         <ScrollView
           style={styles.hubScrollView}
-          contentContainerStyle={styles.hubContent}
+          contentContainerStyle={[
+            styles.hubContent,
+            {
+              maxWidth: maxContentWidth,
+              alignSelf: 'center',
+              width: '100%',
+              paddingHorizontal: isMobile ? 16 : gutter,
+              paddingBottom: isMobile ? 80 : 100,
+            },
+          ]}
           showsVerticalScrollIndicator={false}
         >
           {/* 1. Header with Avatar, Greeting & Real-time GPS Location */}
@@ -422,7 +433,7 @@ export const HomeScreen = ({ navigation }) => {
             <Text style={styles.sectionSubtitle}>VERIFIED URBAN DISPATCH</Text>
           </View>
 
-          <View style={styles.servicesGrid}>
+          <View style={isMobile ? styles.servicesGrid : styles.servicesGridDesktop}>
             {/* Service 1: Verified Drivers */}
             <TouchableOpacity
               style={styles.serviceCard}
@@ -484,44 +495,79 @@ export const HomeScreen = ({ navigation }) => {
                 <Ionicons name="arrow-forward-circle" size={20} color={COLORS.aiPurple} />
               </View>
             </TouchableOpacity>
+
+            {/* Service 3 on Desktop / Tablet: In-Grid Synergy Card */}
+            {!isMobile && (
+              <TouchableOpacity
+                style={[styles.serviceCard, styles.comboServiceCard]}
+                activeOpacity={0.85}
+                onPress={() => {
+                  triggerHaptic('impactLight');
+                  navigation.navigate('CarDriver');
+                }}
+              >
+                <LinearGradient
+                  colors={['rgba(245, 158, 11, 0.22)', 'rgba(236, 72, 153, 0.12)', 'rgba(9, 14, 28, 0.95)']}
+                  style={StyleSheet.absoluteFillObject}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                />
+                <View style={styles.serviceIconWrapGold}>
+                  <Ionicons name="flash" size={22} color="#F59E0B" />
+                </View>
+                <View style={styles.serviceBadgeGold}>
+                  <Text style={styles.serviceBadgeText}>15% SYNERGY OFF</Text>
+                </View>
+                <Text style={styles.serviceCardTitle}>Car + Driver</Text>
+                <Text style={styles.serviceCardDesc}>
+                  Bundled vehicle & verified driver package.
+                </Text>
+                <View style={styles.serviceFooterRow}>
+                  <Text style={styles.servicePriceTagGold}>Save ₹400/day</Text>
+                  <Ionicons name="arrow-forward-circle" size={20} color="#F59E0B" />
+                </View>
+              </TouchableOpacity>
+            )}
           </View>
 
-          {/* Service 3: Car + Driver Combo (Banner Style) */}
-          <TouchableOpacity
-            style={styles.comboBannerCard}
-            activeOpacity={0.88}
-            onPress={() => {
-              triggerHaptic('impactLight');
-              navigation.navigate('CarDriver');
-            }}
-          >
-            <LinearGradient
-              colors={['rgba(245, 158, 11, 0.22)', 'rgba(236, 72, 153, 0.12)', 'rgba(9, 14, 28, 0.95)']}
-              style={StyleSheet.absoluteFillObject}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-            />
-            <View style={styles.comboBannerContent}>
-              <View style={styles.comboBadgeRow}>
-                <View style={styles.comboSavePill}>
-                  <Ionicons name="flash" size={11} color="#050814" />
-                  <Text style={styles.comboSaveText}>15% SYNERGY DISCOUNT</Text>
+          {/* Service 3: Car + Driver Combo (Banner Style on Mobile screens only) */}
+          {isMobile && (
+            <TouchableOpacity
+              style={styles.comboBannerCard}
+              activeOpacity={0.88}
+              onPress={() => {
+                triggerHaptic('impactLight');
+                navigation.navigate('CarDriver');
+              }}
+            >
+              <LinearGradient
+                colors={['rgba(245, 158, 11, 0.22)', 'rgba(236, 72, 153, 0.12)', 'rgba(9, 14, 28, 0.95)']}
+                style={StyleSheet.absoluteFillObject}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              />
+              <View style={styles.comboBannerContent}>
+                <View style={styles.comboBadgeRow}>
+                  <View style={styles.comboSavePill}>
+                    <Ionicons name="flash" size={11} color="#050814" />
+                    <Text style={styles.comboSaveText}>15% SYNERGY DISCOUNT</Text>
+                  </View>
+                  <Text style={styles.comboTierText}>ALL-IN-ONE PACKAGE</Text>
                 </View>
-                <Text style={styles.comboTierText}>ALL-IN-ONE PACKAGE</Text>
-              </View>
-              <Text style={styles.comboTitle}>Car + Chauffeur Combo</Text>
-              <Text style={styles.comboDesc}>
-                Premium vehicle + professional driver bundled seamlessly for worry-free travel.
-              </Text>
-              <View style={styles.comboActionRow}>
-                <Text style={styles.comboPriceHighlight}>Save up to ₹400/day</Text>
-                <View style={styles.comboBtnPill}>
-                  <Text style={styles.comboBtnText}>Book Synergy</Text>
-                  <Ionicons name="chevron-forward" size={14} color="#050814" />
+                <Text style={styles.comboTitle}>Car + Chauffeur Combo</Text>
+                <Text style={styles.comboDesc}>
+                  Premium vehicle + professional driver bundled seamlessly for worry-free travel.
+                </Text>
+                <View style={styles.comboActionRow}>
+                  <Text style={styles.comboPriceHighlight}>Save up to ₹400/day</Text>
+                  <View style={styles.comboBtnPill}>
+                    <Text style={styles.comboBtnText}>Book Synergy</Text>
+                    <Ionicons name="chevron-forward" size={14} color="#050814" />
+                  </View>
                 </View>
               </View>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          )}
 
           {/* 4. Live Mobility Radar Preview Card with "Open Live Map" Button */}
           <View style={styles.sectionHeaderRow}>
@@ -1107,6 +1153,35 @@ const styles = StyleSheet.create({
   servicesGrid: {
     flexDirection: 'row',
     gap: 12,
+  },
+  servicesGridDesktop: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  comboServiceCard: {
+    borderColor: 'rgba(245, 158, 11, 0.3)',
+  },
+  serviceIconWrapGold: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: 'rgba(245, 158, 11, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  serviceBadgeGold: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(245, 158, 11, 0.22)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    marginTop: 8,
+  },
+  servicePriceTagGold: {
+    fontSize: 11,
+    fontWeight: '900',
+    color: '#F59E0B',
+    letterSpacing: 0.3,
   },
   serviceCard: {
     flex: 1,
