@@ -104,9 +104,7 @@ export const RatingReviewScreen = ({ route, navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <AnimatedSpatialBackground />
-
+    <AnimatedSpatialBackground>
       <SafeAreaView style={styles.safeArea}>
         {/* Futuristic Top App Bar */}
         <View style={styles.appBar}>
@@ -280,7 +278,7 @@ export const RatingReviewScreen = ({ route, navigation }) => {
         trustDelta={trustDeltaModal}
         onClose={handleModalDone}
       />
-    </View>
+    </AnimatedSpatialBackground>
   );
 };
 

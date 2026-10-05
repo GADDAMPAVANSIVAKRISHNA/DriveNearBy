@@ -53,9 +53,7 @@ export const SplashScreen = ({ navigation }) => {
   }, [isLoading, logoScale, pulseRing, fadeText]);
 
   return (
-    <View style={styles.container}>
-      <AnimatedSpatialBackground />
-
+    <AnimatedSpatialBackground style={styles.container}>
       {/* Futuristic Hologram Logo */}
       <View style={styles.centerStage}>
         <View style={styles.ringWrapper}>
@@ -95,7 +93,7 @@ export const SplashScreen = ({ navigation }) => {
           <Text style={styles.loadingText}>CONNECTING TO NEURAL MOBILITY GRID</Text>
         </View>
       </View>
-    </View>
+    </AnimatedSpatialBackground>
   );
 };
 

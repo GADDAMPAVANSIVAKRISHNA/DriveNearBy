@@ -39,9 +39,7 @@ export const BookingsScreen = ({ navigation }) => {
   });
 
   return (
-    <View style={styles.container}>
-      <AnimatedSpatialBackground />
-
+    <AnimatedSpatialBackground>
       <SafeAreaView style={styles.safeArea}>
         {/* Responsive Centered Shell */}
         <View style={[styles.responsiveShell, { maxWidth: maxContentWidth, paddingHorizontal: isMobile ? 12 : gutter }]}>
@@ -114,7 +112,7 @@ export const BookingsScreen = ({ navigation }) => {
           />
         </View>
       </SafeAreaView>
-    </View>
+    </AnimatedSpatialBackground>
   );
 };
 

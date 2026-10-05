@@ -98,9 +98,7 @@ export const TripCompletedScreen = ({ route, navigation }) => {
   }, [checkScale, contentFade, glowRing, booking]);
 
   return (
-    <View style={styles.container}>
-      <AnimatedSpatialBackground />
-
+    <AnimatedSpatialBackground>
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Cinematic Completion Halo */}
@@ -230,7 +228,7 @@ export const TripCompletedScreen = ({ route, navigation }) => {
           </Animated.View>
         </ScrollView>
       </SafeAreaView>
-    </View>
+    </AnimatedSpatialBackground>
   );
 };
 

@@ -46,9 +46,7 @@ export const RegisterScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <AnimatedSpatialBackground />
-
+    <AnimatedSpatialBackground>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardView}
@@ -138,7 +136,7 @@ export const RegisterScreen = ({ navigation }) => {
           </GlassCard>
         </ScrollView>
       </KeyboardAvoidingView>
-    </View>
+    </AnimatedSpatialBackground>
   );
 };
 

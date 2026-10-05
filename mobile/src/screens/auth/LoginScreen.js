@@ -44,9 +44,7 @@ export const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <AnimatedSpatialBackground />
-
+    <AnimatedSpatialBackground>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardView}
@@ -132,7 +130,7 @@ export const LoginScreen = ({ navigation }) => {
           </GlassCard>
         </ScrollView>
       </KeyboardAvoidingView>
-    </View>
+    </AnimatedSpatialBackground>
   );
 };
 

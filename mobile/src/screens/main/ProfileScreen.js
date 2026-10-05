@@ -45,9 +45,7 @@ export const ProfileScreen = ({ navigation }) => {
   const isWideLayout = isDesktop || isTablet;
 
   return (
-    <View style={styles.container}>
-      <AnimatedSpatialBackground />
-
+    <AnimatedSpatialBackground>
       <SafeAreaView style={styles.safeArea}>
         {/* Responsive Shell */}
         <View style={[styles.responsiveShell, { maxWidth: maxContentWidth, paddingHorizontal: isMobile ? 12 : gutter }]}>
@@ -213,7 +211,7 @@ export const ProfileScreen = ({ navigation }) => {
           </ScrollView>
         </View>
       </SafeAreaView>
-    </View>
+    </AnimatedSpatialBackground>
   );
 };
 

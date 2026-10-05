@@ -99,9 +99,7 @@ export const ActiveTripScreen = ({ route, navigation }) => {
   const partner = booking.driver || booking.car || { name: 'Assigned Driver', rating: 4.8 };
 
   return (
-    <View style={styles.container}>
-      <AnimatedSpatialBackground />
-
+    <AnimatedSpatialBackground>
       <SafeAreaView style={styles.safeArea}>
         {/* HUD Navigation Header */}
         <View style={styles.appBar}>
@@ -348,7 +346,7 @@ export const ActiveTripScreen = ({ route, navigation }) => {
           </GlassCard>
         </ScrollView>
       </SafeAreaView>
-    </View>
+    </AnimatedSpatialBackground>
   );
 };
 

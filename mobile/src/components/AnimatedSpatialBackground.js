@@ -101,8 +101,16 @@ export const AnimatedSpatialBackground = ({ children, style }) => {
 
   const p3Y = particle3.interpolate({ inputRange: [0, 1], outputRange: [0, -50] });
 
+  const isBackdropOnly = !children;
+
   return (
-    <View style={[styles.container, style]}>
+    <View
+      style={[
+        isBackdropOnly ? styles.absoluteBackdrop : styles.container,
+        style,
+      ]}
+      pointerEvents={isBackdropOnly ? 'none' : 'auto'}
+    >
       {/* Base Space Backdrop */}
       <LinearGradient
         colors={['#040711', '#070D1F', '#050813']}
@@ -192,7 +200,7 @@ export const AnimatedSpatialBackground = ({ children, style }) => {
       />
 
       {/* Content Mount Point */}
-      <View style={styles.contentWrap}>{children}</View>
+      {children ? <View style={styles.contentWrap}>{children}</View> : null}
     </View>
   );
 };
@@ -200,12 +208,23 @@ export const AnimatedSpatialBackground = ({ children, style }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: '100%',
+    height: '100%',
     backgroundColor: '#050814',
     position: 'relative',
     overflow: 'hidden',
   },
+  absoluteBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#050814',
+    overflow: 'hidden',
+    zIndex: 0,
+    pointerEvents: 'none',
+  },
   contentWrap: {
     flex: 1,
+    width: '100%',
+    height: '100%',
     zIndex: 10,
   },
   gridOverlay: {

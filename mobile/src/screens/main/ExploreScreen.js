@@ -31,9 +31,7 @@ export const ExploreScreen = ({ navigation }) => {
   ];
 
   return (
-    <View style={styles.container}>
-      <AnimatedSpatialBackground />
-
+    <AnimatedSpatialBackground>
       <SafeAreaView style={styles.safeArea}>
         {/* Responsive Centered Content Container */}
         <View style={[styles.responsiveShell, { maxWidth: maxContentWidth, paddingHorizontal: isMobile ? 12 : gutter }]}>
@@ -156,7 +154,7 @@ export const ExploreScreen = ({ navigation }) => {
           </View>
         </View>
       </SafeAreaView>
-    </View>
+    </AnimatedSpatialBackground>
   );
 };
 
